@@ -1,0 +1,25 @@
+# Maven target directory
+/target/
+
+# IDE configurations and settings
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Sensitive credentials and secrets
+firebase-service-account.json
+
+# Local Apache Maven installation directory
+apache-maven-3.9.6/
+
+# Log files
+*.log

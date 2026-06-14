@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vision Support | CareSync AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .vision-container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 30px;
+            margin-top: 20px;
+        }
+        .camera-box {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+            aspect-ratio: 4/3;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 4px solid #e2e8f0;
+        }
+        #video, #preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #preview {
+            display: none;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .btn-action {
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .response-area {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 5px solid #0ea5e9;
+            display: none;
+        }
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .pulse-loader {
+            width: 50px;
+            height: 50px;
+            background: #0ea5e9;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fa-solid fa-staff-snake"></i> CareSync AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+                <ul class="navbar-nav gap-3">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/chat">AI Chatbot</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/vision">AI Vision</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-primary">Visual Healthcare Assistance</h2>
+                    <p class="text-muted">Capture or upload images for AI-powered preliminary healthcare guidance.</p>
+                </div>
+
+                <!-- Alert Message Container -->
+                <div id="alertContainer" class="mt-3"></div>
+
+                <div class="vision-container">
+                    <div class="camera-box">
+                        <video id="video" autoplay playsinline></video>
+                        <img id="preview" alt="Captured Preview">
+                        
+                        <div class="loading-overlay" id="loader">
+                            <div class="pulse-loader"></div>
+                            <p class="mt-3 fw-bold text-primary">Analyzing Visual Data...</p>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-outline-primary btn-action" id="startBtn" onclick="startCamera()">
+                            <i class="fa-solid fa-video"></i> Open Camera
+                        </button>
+                        <button class="btn btn-outline-danger btn-action" id="stopBtn" onclick="stopCamera()" style="display:none;">
+                            <i class="fa-solid fa-video-slash"></i> Stop Camera
+                        </button>
+                        <button class="btn btn-primary btn-action" id="captureBtn" onclick="captureImage()" disabled>
+                            <i class="fa-solid fa-camera"></i> Capture
+                        </button>
+                        <button class="btn btn-outline-secondary btn-action" id="uploadBtn" onclick="triggerFileUpload()">
+                            <i class="fa-solid fa-upload"></i> Upload Image
+                        </button>
+                        <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
+                        
+                        <button class="btn btn-success btn-action" id="analyzeBtn" onclick="analyzeImage()" style="display:none;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Image
+                        </button>
+                        <button class="btn btn-secondary btn-action" onclick="resetUI()">
+                            <i class="fa-solid fa-rotate-right"></i> Reset
+                        </button>
+                    </div>
+
+                    <div class="response-area" id="responseArea">
+                        <div class="row">
+                            <div class="col-md-5 mb-3 text-center">
+                                <h6 class="fw-bold mb-2">Uploaded Image</h6>
+                                <img id="analyzedImage" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 250px; object-fit: contain;" alt="Analyzed image">
+                            </div>
+                            <div class="col-md-7 mb-3">
+                                <h5 class="fw-bold mb-2"><i class="fa-solid fa-robot text-primary"></i> AI Guidance</h5>
+                                <div id="aiResponseText" class="mt-2"></div>
+                                <div class="text-muted small mt-2" id="responseTimestamp"></div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-4 py-2 small">
+                            <i class="fa-solid fa-circle-info"></i> <strong>Disclaimer:</strong> This is an AI-generated assessment for informational purposes only. It is NOT a medical diagnosis. Please consult a qualified healthcare professional.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let stream = null;
+        const video = document.getElementById('video');
+        const preview = document.getElementById('preview');
+        const canvas = document.getElementById('canvas');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const responseArea = document.getElementById('responseArea');
+        const aiResponseText = document.getElementById('aiResponseText');
+        const loader = document.getElementById('loader');
+        const fileInput = document.getElementById('fileInput');
+
+        let capturedBlob = null;
+
+        function showAlert(message, type = 'danger') {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearAlert() {
+            document.getElementById('alertContainer').innerHTML = '';
+        }
+
+        async function startCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showAlert("Your browser does not support camera access. Please use a modern browser like Chrome or Firefox.", "warning");
+                return;
+            }
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" }, 
+                    audio: false 
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                preview.style.display = 'none';
+                
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-flex';
+                captureBtn.disabled = false;
+                analyzeBtn.style.display = 'none';
+                responseArea.style.display = 'none';
+                clearAlert();
+            } catch (err) {
+                console.error("Camera error:", err);
+                showAlert("Could not access camera. Please ensure you have granted permission.", "danger");
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            startBtn.style.display = 'inline-flex';
+            stopBtn.style.display = 'none';
+            captureBtn.disabled = true;
+        }
+
+        function captureImage() {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            preview.src = dataUrl;
+            
+            video.style.display = 'none';
+            preview.style.display = 'block';
+            
+            captureBtn.disabled = true;
+            analyzeBtn.style.display = 'inline-flex';
+            
+            // Convert to Blob for upload
+            canvas.toBlob((blob) => {
+                capturedBlob = blob;
+            }, 'image/jpeg');
+
+            stopCamera();
+            clearAlert();
+        }
+
+        function triggerFileUpload() {
+            stopCamera();
+            fileInput.click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showAlert("Please upload an image file.", "danger");
+                return;
+            }
+
+            capturedBlob = file;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                video.style.display = 'none';
+                preview.style.display = 'block';
+                
+                analyzeBtn.style.display = 'inline-flex';
+                analyzeBtn.disabled = false;
+                
+                startBtn.style.display = 'inline-flex';
+                stopBtn.style.display = 'none';
+                captureBtn.disabled = true;
+                
+                clearAlert();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function analyzeImage() {
+            if (!capturedBlob) return;
+
+            const formData = new FormData();
+            formData.append('image', capturedBlob, capturedBlob.name || 'capture.jpg');
+            formData.append('userId', localStorage.getItem('chatSessionId') || 'anonymous');
+
+            loader.style.display = 'flex';
+            analyzeBtn.disabled = true;
+            clearAlert();
+
+            try {
+                const res = await fetch('/api/vision/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    const analyzedImage = document.getElementById('analyzedImage');
+                    analyzedImage.src = data.imageUrl;
+                    
+                    aiResponseText.innerHTML = marked.parse(data.aiResponse);
+                    
+                    const responseTimestamp = document.getElementById('responseTimestamp');
+                    const formattedDate = new Date(data.timestamp).toLocaleString();
+                    responseTimestamp.innerHTML = `<i class="fa-regular fa-clock"></i> Guidance generated on: ${formattedDate}`;
+                    
+                    responseArea.style.display = 'block';
+                    showAlert("Guidance generated successfully.", "success");
+                    responseArea.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    let errMsg = "Please try again.";
+                    try {
+                        const data = await res.json();
+                        if (data && data.error) {
+                            errMsg = data.error;
+                        }
+                    } catch (e) {}
+                    showAlert(errMsg, "danger");
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                showAlert("Please try again.", "danger");
+            } finally {
+                loader.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function resetUI() {
+            stopCamera();
+            video.style.display = 'block';
+            preview.style.display = 'none';
+            startBtn.style.display = 'inline-flex';
+            stopBtn.style.display = 'none';
+            captureBtn.disabled = true;
+            analyzeBtn.style.display = 'none';
+            responseArea.style.display = 'none';
+            capturedBlob = null;
+            fileInput.value = '';
+            clearAlert();
+        }
+    </script>
+</body>
+</html>

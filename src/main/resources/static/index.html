@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareSync AI | AI Healthcare Assistant</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+                <ul class="navbar-nav gap-3">
+                    <li class="nav-item"><a class="nav-link active" href="/" data-i18n="navHome">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/history" data-i18n="navHistory">History</a></li>
+                    <li class="nav-item"><a class="nav-link text-primary fw-bold" href="/chat"><i class="fa-solid fa-comments"></i> AI Chatbot</a></li>
+                    <li class="nav-item"><a class="nav-link text-success fw-bold" href="/vision"><i class="fa-solid fa-camera"></i> AI Vision</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-lock"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <div class="hero-section">
+            <h1 class="display-4" data-i18n="heroTitle">Your Trusted AI Healthcare Assistant</h1>
+            <p class="lead text-muted mb-5" data-i18n="heroSub">Professional, secure, and fast healthcare analysis at your fingertips.</p>
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a href="/chat" class="btn btn-primary btn-lg shadow-sm">
+                    <i class="fa-solid fa-robot"></i> Chat with AI Assistant
+                </a>
+                <a href="/symptom-checker" class="btn btn-outline-primary btn-lg bg-white shadow-sm">
+                    <i class="fa-solid fa-stethoscope"></i> <span data-i18n="btnTrySymptom">Try Symptom Checker</span>
+                </a>
+                <a href="/medicine-reminder" class="btn btn-outline-secondary btn-lg bg-white shadow-sm">
+                    <i class="fa-solid fa-pills"></i> <span data-i18n="btnSetupReminders">Setup Reminders</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <i class="fa-solid fa-user-md text-primary fa-3x mb-3"></i>
+                    <h5 class="fw-bold">AI Diagnostics</h5>
+                    <p class="text-muted">Powered by Gemini AI for rapid initial triage.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <i class="fa-solid fa-clock-rotate-left text-primary fa-3x mb-3"></i>
+                    <h5 class="fw-bold">Medical Logs</h5>
+                    <p class="text-muted">Keep a secure digital history of your symptoms.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <i class="fa-solid fa-shield-halved text-primary fa-3x mb-3"></i>
+                    <h5 class="fw-bold">Privacy First</h5>
+                    <p class="text-muted">Your reminder data is kept locally and secured.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <a href="/vision" class="text-decoration-none">
+                    <div class="card h-100 text-center p-4 shadow-sm border-0 bg-primary text-white">
+                        <i class="fa-solid fa-camera fa-3x mb-3"></i>
+                        <h5 class="fw-bold">AI Vision Support</h5>
+                        <p>Upload images for visual healthcare analysis.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/i18n.js"></script>
+</body>
+</html>

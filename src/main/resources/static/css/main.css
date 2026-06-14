@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+    --primary-color: #0ea5e9;
+    --secondary-color: #0284c7;
+    --bg-light: #f8fafc;
+    --text-main: #334155;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Navbar Tuning */
+.navbar {
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    padding: 1rem 2rem;
+}
+.navbar-brand {
+    font-weight: 700;
+    color: var(--primary-color) !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.nav-link {
+    font-weight: 500;
+    color: var(--text-main) !important;
+}
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+/* Medical Cards */
+.card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    background: #fff;
+}
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.hero-section {
+    padding: 5rem 2rem;
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    border-radius: 1rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+.hero-section h1 {
+    font-weight: 700;
+    color: #0369a1;
+}
+.container-main {
+    flex-grow: 1;
+    padding: 2rem 15px;
+}
+.loading-spinner {
+    height: 3rem; width: 3rem;
+}
+
+.chat-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    min-height: 250px;
+    margin-top: 1.5rem;
+    overflow-y: auto;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-main);
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptom Checker | CareSync AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+                <ul class="navbar-nav gap-3">
+                    <li class="nav-item"><a class="nav-link" href="/" data-i18n="navHome">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/history" data-i18n="navHistory">History</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-lock"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <div class="row w-100 justify-content-center">
+            <div class="col-lg-8">
+                <div class="card p-4 shadow-sm">
+                    <h3 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-stethoscope"></i> <span data-i18n="sympTitle">AI Symptom Checker</span></h3>
+                    <p class="text-muted mb-4" data-i18n="sympDesc">Describe your symptoms below for a preliminary AI assessment.</p>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label text-muted fw-bold">Describe Symptoms</label>
+                            <button class="btn btn-outline-danger btn-sm fw-bold" id="micBtn" onclick="startVoiceRecognition()">
+                                <i class="fa-solid fa-microphone"></i> Speak
+                            </button>
+                        </div>
+                        <textarea class="form-control mb-3" id="symptomsInput" rows="5" placeholder="e.g. I have a headache for two days and mild nausea..." data-i18n="sympDesc"></textarea>
+                        <button class="btn btn-primary w-100 py-2 fs-5 fw-bold shadow-sm" id="analyzeBtn" onclick="analyzeSymptoms()">
+                            <i class="fa-solid fa-robot"></i> <span data-i18n="btnAnalyze">Analyze Symptoms</span>
+                        </button>
+                    </div>
+
+                    <div id="loading" class="text-center my-4 d-none">
+                        <div class="spinner-border text-primary loading-spinner" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted fw-bold">AI is analyzing...</p>
+                    </div>
+
+                    <div id="resultBox" class="chat-box d-none text-start"></div>
+
+                    <div id="doctorActions" class="d-none mt-4 text-center border-top pt-4">
+                        <button class="btn btn-success fw-bold px-4 py-2 shadow-sm" onclick="findNearbyDoctors()">
+                            <i class="fa-solid fa-map-location-dot"></i> Find Nearby Hospitals
+                        </button>
+                        <button class="btn btn-outline-danger fw-bold px-4 py-2 shadow-sm ms-2" onclick="downloadPdf()">
+                            <i class="fa-solid fa-file-pdf"></i> Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/i18n.js"></script>
+    <script>
+        let lastSymptoms = "";
+        let lastAiResponse = "";
+
+        async function analyzeSymptoms() {
+            const inputField = document.getElementById('symptomsInput');
+            const resultBox = document.getElementById('resultBox');
+            const loading = document.getElementById('loading');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const symptoms = inputField.value.trim();
+
+            if (!symptoms) return;
+
+            resultBox.classList.add('d-none');
+            loading.classList.remove('d-none');
+            analyzeBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/symptoms/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms: symptoms })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    lastSymptoms = symptoms;
+                    lastAiResponse = data.aiResponse;
+                    resultBox.innerHTML = marked.parse(data.aiResponse);
+                } else {
+                    resultBox.innerHTML = "<p class='text-danger fw-bold'>Error communicating with the server. Please check your AI API configurations.</p>";
+                }
+            } catch (error) {
+                console.error(error);
+                resultBox.innerHTML = "<p class='text-danger fw-bold'>Failed to connect to the backend API.</p>";
+            } finally {
+                loading.classList.add('d-none');
+                resultBox.classList.remove('d-none');
+                document.getElementById('doctorActions').classList.remove('d-none');
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        let recognition;
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            recognition.onstart = function() {
+                const micBtn = document.getElementById('micBtn');
+                micBtn.classList.remove('btn-outline-danger');
+                micBtn.classList.add('btn-danger');
+                micBtn.innerHTML = '<i class="fa-solid fa-microphone-lines fa-fade"></i> Listening...';
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                const input = document.getElementById('symptomsInput');
+                input.value = input.value + (input.value ? ' ' : '') + transcript;
+            };
+            
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error", event.error);
+                resetMicBtn();
+            };
+            
+            recognition.onend = function() {
+                resetMicBtn();
+            };
+        }
+
+        function startVoiceRecognition() {
+            if (recognition) {
+                recognition.start();
+            } else {
+                alert("Voice recognition is not supported in this browser.");
+            }
+        }
+        
+        function resetMicBtn() {
+            const micBtn = document.getElementById('micBtn');
+            micBtn.classList.add('btn-outline-danger');
+            micBtn.classList.remove('btn-danger');
+            micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Speak';
+        }
+
+        function findNearbyDoctors() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const url = `https://www.google.com/maps/search/hospitals+near+me/@${lat},${lng},14z`;
+                        window.open(url, '_blank');
+                    },
+                    (error) => {
+                        alert("Could not get your location. Opening general map search.");
+                        window.open('https://www.google.com/maps/search/hospitals+near+me', '_blank');
+                    }
+                );
+            } else {
+                window.open('https://www.google.com/maps/search/hospitals+near+me', '_blank');
+            }
+        }
+
+        async function downloadPdf() {
+            if (!lastSymptoms || !lastAiResponse) return;
+            try {
+                const response = await fetch('/api/symptoms/export/pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms: lastSymptoms, aiResponse: lastAiResponse })
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "CareSync_Report.pdf";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                }
+            } catch(e) {
+                console.error("PDF export failed", e);
+            }
+        }
+    </script>
+</body>
+</html>

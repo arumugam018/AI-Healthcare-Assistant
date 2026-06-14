@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity History | CareSync AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+                <ul class="navbar-nav gap-3">
+                    <li class="nav-item"><a class="nav-link" href="/" data-i18n="navHome">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/history" data-i18n="navHistory">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-lock"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-primary"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="historyTitle">Your Medical History</span></h2>
+        </div>
+
+        <div class="row w-100 m-0 p-0">
+            <div class="col-12 p-0">
+                <div class="card p-4 shadow-sm border-0 bg-light">
+                    <div id="historyList" class="d-flex flex-column gap-3">
+                        <p class="text-center text-muted py-5"><i class="fa-solid fa-spinner fa-spin"></i> Loading previous assessments...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/i18n.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", fetchHistory);
+        let globalHistories = [];
+
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/api/symptoms/history');
+                if (response.ok) {
+                    const data = await response.json();
+                    renderHistory(data);
+                }
+            } catch (error) {
+                console.error("Error fetching history", error);
+            }
+        }
+
+        function renderHistory(histories) {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            
+            if (histories.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-5">
+                       <i class="fa-regular fa-folder-open fa-3x text-secondary mb-3"></i>
+                       <p class="text-muted fw-bold">No history available.</p>
+                       <a href="/symptom-checker" class="btn btn-outline-primary btn-sm mt-3">Try the AI Now</a>
+                    </div>
+                `;
+                return;
+            }
+
+            globalHistories = histories.reverse();
+
+            globalHistories.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'card border p-4 shadow-sm h-100 accordion-item';
+                
+                // create a short snippet
+                const shortDesc = item.symptoms.length > 60 ? item.symptoms.substring(0,60) + '...' : item.symptoms;
+
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                        <div>
+                            <h6 class="fw-bold mb-1 text-primary"><i class="fa-solid fa-clipboard-user"></i> Log #${globalHistories.length - index}</h6>
+                            <p class="mb-0 text-muted fst-italic">"${shortDesc}"</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-secondary"></i>
+                    </div>
+                    <div id="collapse${index}" class="collapse mt-3 border-top pt-3">
+                        <p class="fw-bold mb-1">Full Query Input:</p>
+                        <p class="text-dark bg-white p-2 rounded border">${item.symptoms}</p>
+                        <p class="fw-bold mb-1 mt-3 text-primary">AI Assessment:</p>
+                        <div class="text-dark bg-white p-3 rounded border" style="font-size: 0.9em; white-space: pre-wrap;">${item.aiResponse}</div>
+                        <button class="btn btn-sm btn-outline-danger mt-3" onclick="downloadHistoryPdf(${index})"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        async function downloadHistoryPdf(index) {
+            const item = globalHistories[index];
+            try {
+                const response = await fetch('/api/symptoms/export/pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms: item.symptoms, aiResponse: item.aiResponse })
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "CareSync_History_Report.pdf";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                }
+            } catch(e) {
+                console.error("PDF export failed", e);
+            }
+        }
+    </script>
+</body>
+</html>

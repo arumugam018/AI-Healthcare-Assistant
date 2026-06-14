@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | CareSync AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+                <ul class="navbar-nav gap-3">
+                    <li class="nav-item"><a class="nav-link" href="/" data-i18n="navHome">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link text-primary fw-bold" href="/chat"><i class="fa-solid fa-comments"></i> AI Chatbot</a></li>
+                    <li class="nav-item"><a class="nav-link text-success fw-bold" href="/vision"><i class="fa-solid fa-camera"></i> AI Vision</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/history" data-i18n="navHistory">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-lock"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-primary"><i class="fa-solid fa-chart-pie"></i> <span data-i18n="dashTitle">Health Analytics Dashboard</span></h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 p-4 text-center">
+                    <i class="fa-solid fa-clipboard-list text-primary fa-4x mb-3"></i>
+                    <h3 class="display-3 fw-bold text-secondary" id="aiChecksCount">-</h3>
+                    <p class="text-muted fs-5" data-i18n="dashChecks">Symptom Checks</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 p-4 text-center">
+                    <i class="fa-solid fa-capsules text-success fa-4x mb-3"></i>
+                    <h3 class="display-3 fw-bold text-success" id="remindersCount">-</h3>
+                    <p class="text-muted fs-5" data-i18n="dashMeds">Active Medications</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card p-4">
+                    <h5 class="text-muted mb-4">Overall Activity Overview</h5>
+                    <div style="position: relative; height:40vh; width:100%">
+                        <canvas id="healthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/i18n.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", loadDashboardStats);
+
+        async function loadDashboardStats() {
+            let checksCount = 0;
+            let medsCount = 0;
+            
+            try {
+                const historyRes = await fetch('/api/symptoms/history');
+                if (historyRes.ok) {
+                    const history = await historyRes.json();
+                    checksCount = history.length;
+                    document.getElementById('aiChecksCount').innerText = checksCount;
+                }
+
+                // Expecting 401 Unauthorized if not logged in to view total meds count from dashboard natively via API. 
+                // Wait, /api/reminders/** is protected. We will just show "Log In to View" or similar if unauthorized.
+                const remRes = await fetch('/api/reminders');
+                if (remRes.ok) {
+                    const reminders = await remRes.json();
+                    medsCount = reminders.length;
+                    document.getElementById('remindersCount').innerText = medsCount;
+                } else if(remRes.status === 401 || remRes.status === 403) {
+                    document.getElementById('remindersCount').innerText = "🔒";
+                }
+                
+                renderChart(checksCount, medsCount);
+            } catch (err) {
+                console.error("Dashboard failed to load stats: ", err);
+            }
+        }
+
+        function renderChart(checks, meds) {
+            const ctx = document.getElementById('healthChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Symptom Checks Logged', 'Active Reminders Secured'],
+                    datasets: [{
+                        label: 'Application Usage',
+                        data: [checks, meds],
+                        backgroundColor: [
+                            'rgba(14, 165, 233, 0.6)',
+                            'rgba(16, 185, 129, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgb(14, 165, 233)',
+                            'rgb(16, 185, 129)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

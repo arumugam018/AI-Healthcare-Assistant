@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Healthcare Chatbot | CareSync AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .chat-container {
+            height: calc(100vh - 180px);
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .chat-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            line-height: 1.5;
+            position: relative;
+        }
+        .chat-bubble p {
+            margin-bottom: 0;
+        }
+        .chat-bubble.user {
+            background-color: #0ea5e9;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble.model {
+            background-color: #ffffff;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        .chat-input-area {
+            padding: 15px 20px;
+            background: #ffffff;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .chat-input {
+            flex-grow: 1;
+            border-radius: 24px;
+            padding: 12px 20px;
+            border: 1px solid #dee2e6;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 0.2rem rgba(14, 165, 233, 0.25);
+        }
+        .btn-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .btn-circle:hover {
+            transform: scale(1.05);
+        }
+        .btn-send {
+            background-color: #0ea5e9;
+            color: white;
+        }
+        .btn-mic {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+        .btn-mic.active {
+            background-color: #ef4444;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: #ffffff;
+            border-radius: 16px;
+            align-self: flex-start;
+            border: 1px solid #e9ecef;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #cbd5e1;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fa-solid fa-staff-snake"></i> CareSync AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+                <ul class="navbar-nav gap-3">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/chat">AI Chatbot</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/symptom-checker">Symptom Checker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <div class="row w-100 justify-content-center">
+            <div class="col-lg-10">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-bubble model">
+                            <p>Hello! I am CareSync AI, your healthcare assistant. How can I help you today?</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <button class="btn-circle btn-mic" id="ttsBtn" onclick="toggleTts()" title="Toggle Text-to-Speech">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                        <button class="btn-circle btn-mic" id="micBtn" onclick="toggleVoice()" title="Speech to Text">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <input type="text" class="chat-input" id="messageInput" placeholder="Type your symptoms or health query here..." onkeypress="handleKeyPress(event)">
+                        <button class="btn-circle btn-send" onclick="sendMessage()">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Generate or retrieve session ID
+        let sessionId = localStorage.getItem('chatSessionId');
+        if (!sessionId) {
+            sessionId = crypto.randomUUID ? crypto.randomUUID() : 'sess-' + Date.now();
+            localStorage.setItem('chatSessionId', sessionId);
+        }
+
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+
+        // Load history on start
+        async function loadHistory() {
+            try {
+                const res = await fetch(`/api/chat/history/${sessionId}`);
+                if (res.ok) {
+                    const session = await res.json();
+                    if (session.messages && session.messages.length > 0) {
+                        // Clear welcome message if there's history
+                        chatMessages.innerHTML = '';
+                        session.messages.forEach(msg => {
+                            appendMessage(msg.content, msg.role);
+                        });
+                        scrollToBottom();
+                    }
+                }
+            } catch(e) {
+                console.error("Failed to load history", e);
+            }
+        }
+
+        window.onload = loadHistory;
+
+        function appendMessage(text, role) {
+            const div = document.createElement('div');
+            div.className = `chat-bubble ${role}`;
+            
+            if (role === 'model') {
+                div.innerHTML = marked.parse(text);
+            } else {
+                div.innerText = text;
+            }
+            
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const div = document.createElement('div');
+            div.className = 'typing-indicator';
+            div.id = 'typingIndicator';
+            div.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            // Clear input and show user message
+            messageInput.value = '';
+            appendMessage(text, 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('/api/chat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        userId: "anonymous", // Can be replaced with actual user ID later
+                        message: text
+                    })
+                });
+
+                removeTypingIndicator();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    appendMessage(data.message.content, 'model');
+                    if (ttsEnabled) {
+                        speakText(data.message.content);
+                    }
+                } else {
+                    const errorMsg = "Sorry, I encountered an error. Please try again.";
+                    appendMessage(errorMsg, 'model');
+                    if (ttsEnabled) speakText(errorMsg);
+                }
+            } catch (error) {
+                console.error(error);
+                removeTypingIndicator();
+                const errorMsg = "Failed to connect to the server.";
+                appendMessage(errorMsg, 'model');
+                if (ttsEnabled) speakText(errorMsg);
+            }
+        }
+
+        // Text-to-Speech Placeholder
+        let ttsEnabled = false;
+        function toggleTts() {
+            ttsEnabled = !ttsEnabled;
+            const ttsBtn = document.getElementById('ttsBtn');
+            if (ttsEnabled) {
+                ttsBtn.classList.add('active');
+                ttsBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            } else {
+                ttsBtn.classList.remove('active');
+                ttsBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+                window.speechSynthesis.cancel(); // Stop speaking if turned off
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                // Strip markdown for speaking
+                const plainText = text.replace(/[#*_~`>]/g, '').trim();
+                const utterance = new SpeechSynthesisUtterance(plainText);
+                utterance.lang = 'en-US';
+                // Optional: choose a female/medical sounding voice if available
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Web Speech API Placeholder
+        let recognition;
+        let isListening = false;
+        
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                let finalTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                
+                if (finalTranscript) {
+                    messageInput.value = (messageInput.value + ' ' + finalTranscript).trim();
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                console.error("Speech error:", event.error);
+                stopVoice();
+            };
+            
+            recognition.onend = function() {
+                stopVoice();
+            };
+        }
+
+        function toggleVoice() {
+            if (!recognition) {
+                alert("Speech recognition is not supported in this browser.");
+                return;
+            }
+            
+            if (isListening) {
+                recognition.stop();
+            } else {
+                messageInput.placeholder = "Listening...";
+                recognition.start();
+                isListening = true;
+                document.getElementById('micBtn').classList.add('active');
+            }
+        }
+        
+        function stopVoice() {
+            isListening = false;
+            document.getElementById('micBtn').classList.remove('active');
+            messageInput.placeholder = "Type your symptoms or health query here...";
+        }
+    </script>
+</body>
+</html>
