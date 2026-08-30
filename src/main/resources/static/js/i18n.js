@@ -1,6 +1,6 @@
 const translations = {
     en: {
-        brandName: "CareSync",
+        brandName: "CareSync AI",
         navHome: "Home",
         navChat: "AI Chatbot",
         navVision: "AI Vision",
@@ -87,7 +87,7 @@ const translations = {
         historySub: "View past symptom checks and download PDF assessment reports."
     },
     ta: {
-        brandName: "கேர்சின்க்",
+        brandName: "கேர்சின்க் AI",
         navHome: "முகப்பு",
         navChat: "AI அரட்டை",
         navVision: "AI பார்வை",
@@ -213,19 +213,7 @@ function initPageLoader() {
         loader.innerHTML = `
             <div class="loader-logo-wrap">
                 <div class="loader-ring"></div>
-                <div class="brand-logo-icon" style="width: 56px; height: 56px;">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="loaderLogoGrad" x1="0" y1="0" x2="100" y2="100">
-                                <stop offset="0%" stop-color="#38bdf8"/>
-                                <stop offset="100%" stop-color="#0284c7"/>
-                            </linearGradient>
-                        </defs>
-                        <rect x="47" y="12" width="6" height="76" rx="3" fill="url(#loaderLogoGrad)" />
-                        <circle cx="50" cy="14" r="7" fill="#38bdf8" />
-                        <path d="M 28 28 C 72 24, 72 46, 50 50 C 28 54, 28 76, 72 72" stroke="url(#loaderLogoGrad)" stroke-width="8.5" stroke-linecap="round" fill="none"/>
-                    </svg>
-                </div>
+                <img src="/images/logo.png" alt="CareSync AI Logo">
             </div>
         `;
         document.body.prepend(loader);
