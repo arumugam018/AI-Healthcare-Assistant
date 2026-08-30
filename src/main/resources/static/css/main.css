@@ -52,6 +52,65 @@ body {
     background: #0ea5e9;
 }
 
+/* Animated Full-Screen CareSync AI Page Loader */
+.page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #090d16;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.page-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-logo-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader-logo-wrap img {
+    height: 54px;
+    width: auto;
+    animation: loaderLogoPulse 1.8s infinite ease-in-out;
+    filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.7));
+}
+
+.loader-ring {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border: 2px solid rgba(14, 165, 233, 0.12);
+    border-top-color: #0ea5e9;
+    border-bottom-color: #38bdf8;
+    border-radius: 50%;
+    animation: loaderSpin 1.2s linear infinite;
+}
+
+@keyframes loaderLogoPulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.5)); }
+    50% { transform: scale(1.06); filter: drop-shadow(0 0 28px rgba(14, 165, 233, 0.95)); }
+}
+
+@keyframes loaderSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Glass Navbar */
 .navbar {
     background: var(--bg-glass) !important;

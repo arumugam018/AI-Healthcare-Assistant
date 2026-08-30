@@ -203,4 +203,44 @@ function applyTranslations() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", applyTranslations);
+// Page Loader Injector & Smooth Page Transition Handler
+function initPageLoader() {
+    let loader = document.getElementById('pageLoader');
+    if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'pageLoader';
+        loader.className = 'page-loader';
+        loader.innerHTML = `
+            <div class="loader-logo-wrap">
+                <div class="loader-ring"></div>
+                <img src="/images/logo.png" alt="CareSync AI Logo">
+            </div>
+        `;
+        document.body.prepend(loader);
+    }
+
+    // Hide loader once DOM & resources are ready
+    setTimeout(() => {
+        loader.classList.add('hidden');
+    }, 250);
+
+    // Attach smooth loading transition to internal page links
+    document.querySelectorAll('a[href]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.startsWith('javascript') && !href.startsWith('http')) {
+            link.addEventListener('click', function(e) {
+                if (e.ctrlKey || e.metaKey || e.shiftKey || link.target === '_blank') return;
+                e.preventDefault();
+                loader.classList.remove('hidden');
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 200);
+            });
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    applyTranslations();
+    initPageLoader();
+});
