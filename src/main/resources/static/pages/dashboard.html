@@ -10,56 +10,65 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <i class="fa-solid fa-bars fs-4"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-                <ul class="navbar-nav gap-3">
-                    <li class="nav-item"><a class="nav-link" href="/" data-i18n="navHome">Home</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link text-primary fw-bold" href="/chat"><i class="fa-solid fa-comments"></i> AI Chatbot</a></li>
-                    <li class="nav-item"><a class="nav-link text-success fw-bold" href="/vision"><i class="fa-solid fa-camera"></i> AI Vision</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/history" data-i18n="navHistory">History</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-lock"></i> <span data-i18n="navReminder">Reminders</span></a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
+                <ul class="navbar-nav gap-2">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-house"></i> <span data-i18n="navHome">Home</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-info" href="/chat"><i class="fa-solid fa-robot"></i> <span data-i18n="navChat">AI Chatbot</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-success" href="/vision"><i class="fa-solid fa-camera"></i> <span data-i18n="navVision">AI Vision</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="/symptom-checker"><i class="fa-solid fa-stethoscope"></i> <span data-i18n="navSymptom">Symptom Checker</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-pills"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/dashboard"><i class="fa-solid fa-chart-line"></i> <span data-i18n="navDashboard">Dashboard</span></a></li>
+                    <li class="nav-item ms-lg-2"><a class="nav-link btn btn-outline-light-custom px-3 py-1 text-white" href="#" onclick="toggleLanguage(event)"><i class="fa-solid fa-globe"></i> <span data-i18n="langToggle">EN | TA</span></a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container container-main">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold text-primary"><i class="fa-solid fa-chart-pie"></i> <span data-i18n="dashTitle">Health Analytics Dashboard</span></h2>
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="card-feature-icon mb-0" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; width: 54px; height: 54px; font-size: 1.4rem;">
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <div>
+                <h3 class="fw-bold mb-1" style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" data-i18n="dashTitle">Health Analytics Dashboard</h3>
+                <p class="text-secondary small mb-0" data-i18n="dashSub">Overview of symptom checks, visual scans, and active medications.</p>
+            </div>
         </div>
-        
-        <div class="row">
-            <div class="col-md-6 mb-4">
+
+        <div class="row g-4">
+            <div class="col-md-6">
                 <div class="card h-100 p-4 text-center">
-                    <i class="fa-solid fa-clipboard-list text-primary fa-4x mb-3"></i>
-                    <h3 class="display-3 fw-bold text-secondary" id="aiChecksCount">-</h3>
-                    <p class="text-muted fs-5" data-i18n="dashChecks">Symptom Checks</p>
+                    <div class="mx-auto mb-3 card-feature-icon" style="width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold text-info" id="aiChecksCount">0</h2>
+                    <p class="text-secondary fw-semibold mb-0" data-i18n="dashChecks">Logged Symptom Assessments</p>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
+            <div class="col-md-6">
                 <div class="card h-100 p-4 text-center">
-                    <i class="fa-solid fa-capsules text-success fa-4x mb-3"></i>
-                    <h3 class="display-3 fw-bold text-success" id="remindersCount">-</h3>
-                    <p class="text-muted fs-5" data-i18n="dashMeds">Active Medications</p>
+                    <div class="mx-auto mb-3 card-feature-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981; width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="fa-solid fa-capsules"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold text-success" id="remindersCount">0</h2>
+                    <p class="text-secondary fw-semibold mb-0" data-i18n="dashMeds">Secured Active Reminders</p>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-3">
+        <div class="row mt-4">
             <div class="col-12">
                 <div class="card p-4">
-                    <h5 class="text-muted mb-4">Overall Activity Overview</h5>
-                    <div style="position: relative; height:40vh; width:100%">
+                    <h5 class="fw-bold text-light mb-4"><i class="fa-solid fa-chart-bar text-info me-2"></i>Activity Usage Breakdown</h5>
+                    <div style="position: relative; height:38vh; width:100%">
                         <canvas id="healthChart"></canvas>
                     </div>
                 </div>
@@ -84,8 +93,6 @@
                     document.getElementById('aiChecksCount').innerText = checksCount;
                 }
 
-                // Expecting 401 Unauthorized if not logged in to view total meds count from dashboard natively via API. 
-                // Wait, /api/reminders/** is protected. We will just show "Log In to View" or similar if unauthorized.
                 const remRes = await fetch('/api/reminders');
                 if (remRes.ok) {
                     const reminders = await remRes.json();
@@ -97,7 +104,7 @@
                 
                 renderChart(checksCount, medsCount);
             } catch (err) {
-                console.error("Dashboard failed to load stats: ", err);
+                console.error("Dashboard error: ", err);
             }
         }
 
@@ -106,30 +113,31 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Symptom Checks Logged', 'Active Reminders Secured'],
+                    labels: ['Symptom Assessments', 'Active Reminders'],
                     datasets: [{
-                        label: 'Application Usage',
+                        label: 'Recorded System Activities',
                         data: [checks, meds],
                         backgroundColor: [
-                            'rgba(14, 165, 233, 0.6)',
-                            'rgba(16, 185, 129, 0.6)'
+                            'rgba(14, 165, 233, 0.7)',
+                            'rgba(16, 185, 129, 0.7)'
                         ],
                         borderColor: [
-                            'rgb(14, 165, 233)',
-                            'rgb(16, 185, 129)'
+                            '#0ea5e9',
+                            '#10b981'
                         ],
-                        borderWidth: 1,
-                        borderRadius: 4
+                        borderWidth: 2,
+                        borderRadius: 8
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 }
-                        }
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { beginAtZero: true, ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } }
                     }
                 }
             });

@@ -3,88 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareSync AI | AI Healthcare Assistant</title>
-    <!-- Bootstrap CSS -->
+    <title>CareSync AI | Next-Gen AI Healthcare Assistant</title>
+    <!-- Google Fonts & Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <i class="fa-solid fa-bars fs-4"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-                <ul class="navbar-nav gap-3">
-                    <li class="nav-item"><a class="nav-link active" href="/" data-i18n="navHome">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/history" data-i18n="navHistory">History</a></li>
-                    <li class="nav-item"><a class="nav-link text-primary fw-bold" href="/chat"><i class="fa-solid fa-comments"></i> AI Chatbot</a></li>
-                    <li class="nav-item"><a class="nav-link text-success fw-bold" href="/vision"><i class="fa-solid fa-camera"></i> AI Vision</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-lock"></i> <span data-i18n="navReminder">Reminders</span></a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
+                <ul class="navbar-nav gap-2">
+                    <li class="nav-item"><a class="nav-link active" href="/"><i class="fa-solid fa-house"></i> <span data-i18n="navHome">Home</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-info" href="/chat"><i class="fa-solid fa-robot"></i> <span data-i18n="navChat">AI Chatbot</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-success" href="/vision"><i class="fa-solid fa-camera"></i> <span data-i18n="navVision">AI Vision</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="/symptom-checker"><i class="fa-solid fa-stethoscope"></i> <span data-i18n="navSymptom">Symptom Checker</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-pills"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fa-solid fa-chart-line"></i> <span data-i18n="navDashboard">Dashboard</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/history"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="navHistory">History</span></a></li>
+                    <li class="nav-item ms-lg-2"><a class="nav-link btn btn-outline-light-custom px-3 py-1 text-white" href="#" onclick="toggleLanguage(event)"><i class="fa-solid fa-globe"></i> <span data-i18n="langToggle">EN | TA</span></a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container container-main">
-        <div class="hero-section">
-            <h1 class="display-4" data-i18n="heroTitle">Your Trusted AI Healthcare Assistant</h1>
-            <p class="lead text-muted mb-5" data-i18n="heroSub">Professional, secure, and fast healthcare analysis at your fingertips.</p>
-            <div class="d-flex justify-content-center gap-3 mt-4">
+        <div class="hero-section mb-5">
+            <div class="d-inline-flex align-items-center gap-2 badge-glass mb-3">
+                <i class="fa-solid fa-sparkles text-info"></i> <span data-i18n="heroBadge">Powered by Gemini 3.6 Flash & Vision Intelligence</span>
+            </div>
+            <h1 class="hero-title" data-i18n="heroTitle">Intelligent Care at Your Fingertips</h1>
+            <p class="hero-subtitle" data-i18n="heroSub">Experience instantaneous healthcare analysis, pill label recognition, automated reminders, and multi-lingual medical assistance in a secure ecosystem.</p>
+
+            <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
                 <a href="/chat" class="btn btn-primary btn-lg shadow-sm">
-                    <i class="fa-solid fa-robot"></i> Chat with AI Assistant
+                    <i class="fa-solid fa-comments"></i> <span data-i18n="btnStartChat">Start AI Chat Assistant</span>
                 </a>
-                <a href="/symptom-checker" class="btn btn-outline-primary btn-lg bg-white shadow-sm">
-                    <i class="fa-solid fa-stethoscope"></i> <span data-i18n="btnTrySymptom">Try Symptom Checker</span>
+                <a href="/vision" class="btn btn-outline-light-custom btn-lg">
+                    <i class="fa-solid fa-eye"></i> <span data-i18n="btnTryVision">Try Vision Analysis</span>
                 </a>
-                <a href="/medicine-reminder" class="btn btn-outline-secondary btn-lg bg-white shadow-sm">
-                    <i class="fa-solid fa-pills"></i> <span data-i18n="btnSetupReminders">Setup Reminders</span>
+                <a href="/symptom-checker" class="btn btn-outline-light-custom btn-lg">
+                    <i class="fa-solid fa-notes-medical"></i> <span data-i18n="btnTrySymptom">Symptom Checker</span>
                 </a>
             </div>
         </div>
-        
-        <div class="row mt-5">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center p-4 shadow-sm border-0">
-                    <i class="fa-solid fa-user-md text-primary fa-3x mb-3"></i>
-                    <h5 class="fw-bold">AI Diagnostics</h5>
-                    <p class="text-muted">Powered by Gemini AI for rapid initial triage.</p>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center p-4 shadow-sm border-0">
-                    <i class="fa-solid fa-clock-rotate-left text-primary fa-3x mb-3"></i>
-                    <h5 class="fw-bold">Medical Logs</h5>
-                    <p class="text-muted">Keep a secure digital history of your symptoms.</p>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center p-4 shadow-sm border-0">
-                    <i class="fa-solid fa-shield-halved text-primary fa-3x mb-3"></i>
-                    <h5 class="fw-bold">Privacy First</h5>
-                    <p class="text-muted">Your reminder data is kept locally and secured.</p>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <a href="/vision" class="text-decoration-none">
-                    <div class="card h-100 text-center p-4 shadow-sm border-0 bg-primary text-white">
-                        <i class="fa-solid fa-camera fa-3x mb-3"></i>
-                        <h5 class="fw-bold">AI Vision Support</h5>
-                        <p>Upload images for visual healthcare analysis.</p>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 p-4">
+                    <div class="card-feature-icon">
+                        <i class="fa-solid fa-robot"></i>
                     </div>
-                </a>
+                    <h5 class="fw-bold mb-2" data-i18n="cardChatTitle">Conversational AI</h5>
+                    <p class="text-secondary small mb-3" data-i18n="cardChatDesc">Instant answers, symptom guidance, and multi-turn conversations customized to your queries.</p>
+                    <a href="/chat" class="text-info fw-semibold text-decoration-none mt-auto"><span data-i18n="btnLaunchChat">Launch Chatbot</span> <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 p-4">
+                    <div class="card-feature-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" data-i18n="cardVisionTitle">AI Vision Diagnostics</h5>
+                    <p class="text-secondary small mb-3" data-i18n="cardVisionDesc">Upload medical images or pill bottles to get AI visual explanations and automatic label extractions.</p>
+                    <a href="/vision" class="text-success fw-semibold text-decoration-none mt-auto"><span data-i18n="btnScanImage">Scan Image</span> <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 p-4">
+                    <div class="card-feature-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                        <i class="fa-solid fa-notes-medical"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" data-i18n="cardSymptomTitle">Symptom Checker</h5>
+                    <p class="text-secondary small mb-3" data-i18n="cardSymptomDesc">Detailed symptom analysis with preliminary assessments and instant PDF export capabilities.</p>
+                    <a href="/symptom-checker" class="text-warning fw-semibold text-decoration-none mt-auto"><span data-i18n="btnCheckSymptom">Check Symptoms</span> <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 p-4">
+                    <div class="card-feature-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" data-i18n="cardReminderTitle">Smart Reminders</h5>
+                    <p class="text-secondary small mb-3" data-i18n="cardReminderDesc">Schedule your daily medicines with automatic sound notifications and pill label OCR scanning.</p>
+                    <a href="/medicine-reminder" class="text-danger fw-semibold text-decoration-none mt-auto"><span data-i18n="btnSetupReminders">Setup Reminders</span> <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 p-4">
+                    <div class="card-feature-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" data-i18n="cardPrivacyTitle">Secure & Private</h5>
+                    <p class="text-secondary small mb-3" data-i18n="cardPrivacyDesc">Cloud Firebase & local storage synchronization ensures your records remain safe and confidential.</p>
+                    <a href="/dashboard" class="text-purple fw-semibold text-decoration-none mt-auto" style="color: #a78bfa;"><span data-i18n="btnViewDash">View Dashboard</span> <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 p-4">
+                    <div class="card-feature-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" data-i18n="cardLangTitle">Multi-Lingual Care</h5>
+                    <p class="text-secondary small mb-3" data-i18n="cardLangDesc">Switch seamlessly between English and Tamil (தமிழ்) for complete accessibility.</p>
+                    <a href="#" onclick="toggleLanguage(event)" class="text-pink fw-semibold text-decoration-none mt-auto" style="color: #f472b6;"><span data-i18n="btnSwitchLang">Switch Language</span> <i class="fa-solid fa-language ms-1"></i></a>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <footer class="footer-custom">
+        <div class="container text-center">
+            <p class="mb-1 fw-semibold text-light"><i class="fa-solid fa-staff-snake text-info me-2"></i>CareSync AI Healthcare Assistant</p>
+            <p class="small text-muted mb-0">Disclaimer: CareSync AI provides preliminary informational guidance only and is not a substitute for professional medical advice.</p>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/i18n.js"></script>
 </body>

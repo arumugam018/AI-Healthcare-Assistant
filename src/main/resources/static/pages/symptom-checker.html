@@ -7,66 +7,72 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Marked.js for markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <i class="fa-solid fa-bars fs-4"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-                <ul class="navbar-nav gap-3">
-                    <li class="nav-item"><a class="nav-link" href="/" data-i18n="navHome">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/history" data-i18n="navHistory">History</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-lock"></i> <span data-i18n="navReminder">Reminders</span></a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
+                <ul class="navbar-nav gap-2">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-house"></i> <span data-i18n="navHome">Home</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-info" href="/chat"><i class="fa-solid fa-robot"></i> <span data-i18n="navChat">AI Chatbot</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-success" href="/vision"><i class="fa-solid fa-camera"></i> <span data-i18n="navVision">AI Vision</span></a></li>
+                    <li class="nav-item"><a class="nav-link active text-warning" href="/symptom-checker"><i class="fa-solid fa-stethoscope"></i> <span data-i18n="navSymptom">Symptom Checker</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-pills"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fa-solid fa-chart-line"></i> <span data-i18n="navDashboard">Dashboard</span></a></li>
+                    <li class="nav-item ms-lg-2"><a class="nav-link btn btn-outline-light-custom px-3 py-1 text-white" href="#" onclick="toggleLanguage(event)"><i class="fa-solid fa-globe"></i> <span data-i18n="langToggle">EN | TA</span></a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container container-main">
-        <div class="row w-100 justify-content-center">
-            <div class="col-lg-8">
-                <div class="card p-4 shadow-sm">
-                    <h3 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-stethoscope"></i> <span data-i18n="sympTitle">AI Symptom Checker</span></h3>
-                    <p class="text-muted mb-4" data-i18n="sympDesc">Describe your symptoms below for a preliminary AI assessment.</p>
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="card p-4 p-md-5">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="card-feature-icon mb-0" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; width: 54px; height: 54px; font-size: 1.4rem;">
+                            <i class="fa-solid fa-stethoscope"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-1" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" data-i18n="sympTitle">AI Symptom Assessment</h3>
+                            <p class="text-secondary small mb-0" data-i18n="sympSub">Describe your health symptoms for an instantaneous triage report.</p>
+                        </div>
+                    </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label text-muted fw-bold">Describe Symptoms</label>
-                            <button class="btn btn-outline-danger btn-sm fw-bold" id="micBtn" onclick="startVoiceRecognition()">
-                                <i class="fa-solid fa-microphone"></i> Speak
+                            <label class="form-label text-secondary fw-semibold mb-0" data-i18n="sympLabel">Symptoms Description</label>
+                            <button class="btn btn-outline-light-custom btn-sm py-1 px-3" id="micBtn" onclick="startVoiceRecognition()">
+                                <i class="fa-solid fa-microphone text-danger me-1"></i> Speak
                             </button>
                         </div>
-                        <textarea class="form-control mb-3" id="symptomsInput" rows="5" placeholder="e.g. I have a headache for two days and mild nausea..." data-i18n="sympDesc"></textarea>
-                        <button class="btn btn-primary w-100 py-2 fs-5 fw-bold shadow-sm" id="analyzeBtn" onclick="analyzeSymptoms()">
-                            <i class="fa-solid fa-robot"></i> <span data-i18n="btnAnalyze">Analyze Symptoms</span>
+                        <textarea class="form-control form-control-custom mb-3" id="symptomsInput" rows="5" placeholder="e.g. I have had a sore throat, mild fever, and dry cough for 2 days..." data-i18n="sympPlaceholder"></textarea>
+                        
+                        <button class="btn btn-primary w-100 py-3 fs-6 fw-bold" id="analyzeBtn" onclick="analyzeSymptoms()">
+                            <i class="fa-solid fa-wand-magic-sparkles me-2"></i> <span data-i18n="btnAnalyze">Analyze Symptoms Now</span>
                         </button>
                     </div>
 
                     <div id="loading" class="text-center my-4 d-none">
-                        <div class="spinner-border text-primary loading-spinner" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2 text-muted fw-bold">AI is analyzing...</p>
+                        <div class="spinner-border text-info mb-2" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                        <p class="text-secondary fw-semibold">Consulting Gemini 3.6 Flash Intelligence...</p>
                     </div>
 
-                    <div id="resultBox" class="chat-box d-none text-start"></div>
+                    <div id="resultBox" class="d-none p-4 rounded-4" style="background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border-color); color: #f1f5f9; line-height: 1.7;"></div>
 
-                    <div id="doctorActions" class="d-none mt-4 text-center border-top pt-4">
-                        <button class="btn btn-success fw-bold px-4 py-2 shadow-sm" onclick="findNearbyDoctors()">
-                            <i class="fa-solid fa-map-location-dot"></i> Find Nearby Hospitals
+                    <div id="doctorActions" class="d-none mt-4 text-center pt-3 border-top border-secondary border-opacity-25">
+                        <button class="btn btn-outline-light-custom fw-bold px-4 py-2 me-2 mb-2" onclick="findNearbyDoctors()">
+                            <i class="fa-solid fa-map-location-dot text-success me-2"></i> <span data-i18n="btnNearbyHospitals">Find Nearby Hospitals</span>
                         </button>
-                        <button class="btn btn-outline-danger fw-bold px-4 py-2 shadow-sm ms-2" onclick="downloadPdf()">
-                            <i class="fa-solid fa-file-pdf"></i> Download PDF
+                        <button class="btn btn-outline-light-custom fw-bold px-4 py-2 mb-2" onclick="downloadPdf()">
+                            <i class="fa-solid fa-file-pdf text-danger me-2"></i> <span data-i18n="btnExportPdf">Export Assessment PDF</span>
                         </button>
                     </div>
                 </div>
@@ -89,6 +95,11 @@
 
             if (!symptoms) return;
 
+            let promptToSend = symptoms;
+            if (localStorage.getItem('lang') === 'ta') {
+                promptToSend = `[Please respond in Tamil] ${symptoms}`;
+            }
+
             resultBox.classList.add('d-none');
             loading.classList.remove('d-none');
             analyzeBtn.disabled = true;
@@ -97,7 +108,7 @@
                 const response = await fetch('/api/symptoms/check', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ symptoms: symptoms })
+                    body: JSON.stringify({ symptoms: promptToSend })
                 });
 
                 if (response.ok) {
@@ -106,11 +117,11 @@
                     lastAiResponse = data.aiResponse;
                     resultBox.innerHTML = marked.parse(data.aiResponse);
                 } else {
-                    resultBox.innerHTML = "<p class='text-danger fw-bold'>Error communicating with the server. Please check your AI API configurations.</p>";
+                    resultBox.innerHTML = "<p class='text-danger fw-bold'>Service connection error. Please try again.</p>";
                 }
             } catch (error) {
                 console.error(error);
-                resultBox.innerHTML = "<p class='text-danger fw-bold'>Failed to connect to the backend API.</p>";
+                resultBox.innerHTML = "<p class='text-danger fw-bold'>Failed to connect to the backend server.</p>";
             } finally {
                 loading.classList.add('d-none');
                 resultBox.classList.remove('d-none');
@@ -127,9 +138,7 @@
             
             recognition.onstart = function() {
                 const micBtn = document.getElementById('micBtn');
-                micBtn.classList.remove('btn-outline-danger');
-                micBtn.classList.add('btn-danger');
-                micBtn.innerHTML = '<i class="fa-solid fa-microphone-lines fa-fade"></i> Listening...';
+                micBtn.innerHTML = '<i class="fa-solid fa-microphone-lines text-danger fa-fade"></i> Listening...';
             };
             
             recognition.onresult = function(event) {
@@ -138,44 +147,32 @@
                 input.value = input.value + (input.value ? ' ' : '') + transcript;
             };
             
-            recognition.onerror = function(event) {
-                console.error("Speech recognition error", event.error);
-                resetMicBtn();
-            };
-            
-            recognition.onend = function() {
-                resetMicBtn();
-            };
+            recognition.onerror = function() { resetMicBtn(); };
+            recognition.onend = function() { resetMicBtn(); };
         }
 
         function startVoiceRecognition() {
             if (recognition) {
+                recognition.lang = localStorage.getItem('lang') === 'ta' ? 'ta-IN' : 'en-US';
                 recognition.start();
             } else {
-                alert("Voice recognition is not supported in this browser.");
+                alert("Voice recognition not supported in this browser.");
             }
         }
         
         function resetMicBtn() {
             const micBtn = document.getElementById('micBtn');
-            micBtn.classList.add('btn-outline-danger');
-            micBtn.classList.remove('btn-danger');
-            micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Speak';
+            micBtn.innerHTML = '<i class="fa-solid fa-microphone text-danger me-1"></i> Speak';
         }
 
         function findNearbyDoctors() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const url = `https://www.google.com/maps/search/hospitals+near+me/@${lat},${lng},14z`;
+                        const url = `https://www.google.com/maps/search/hospitals+near+me/@${position.coords.latitude},${position.coords.longitude},14z`;
                         window.open(url, '_blank');
                     },
-                    (error) => {
-                        alert("Could not get your location. Opening general map search.");
-                        window.open('https://www.google.com/maps/search/hospitals+near+me', '_blank');
-                    }
+                    () => { window.open('https://www.google.com/maps/search/hospitals+near+me', '_blank'); }
                 );
             } else {
                 window.open('https://www.google.com/maps/search/hospitals+near+me', '_blank');
@@ -200,9 +197,7 @@
                     a.click();
                     a.remove();
                 }
-            } catch(e) {
-                console.error("PDF export failed", e);
-            }
+            } catch(e) { console.error("PDF export failed", e); }
         }
     </script>
 </body>

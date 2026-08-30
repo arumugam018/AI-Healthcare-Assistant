@@ -3,6 +3,7 @@ package com.healthcare.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,11 +28,22 @@ public class GeminiService {
     private final RestTemplate restTemplate;
     
     public GeminiService() {
-        this.restTemplate = new RestTemplate();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(15000);
+        this.restTemplate = new RestTemplate(factory);
     }
     
+    private boolean isApiKeyMissing() {
+        return apiKey == null || apiKey.trim().isEmpty() || apiKey.equalsIgnoreCase("YOUR_API_KEY");
+    }
+
     @SuppressWarnings("unchecked")
     public String analyzeSymptoms(String symptoms) {
+        if (isApiKeyMissing()) {
+            return "Gemini API key is not configured. Please set the GEMINI_API_KEY environment variable (e.g., set in `.env` or run `.\\run.bat YOUR_API_KEY`) to enable AI features.";
+        }
+
         String prompt = "You are a helpful AI healthcare assistant symptom checker. A patient reports the following symptoms: " + 
         symptoms + ". Provide a brief, professional, and empathetic preliminary assessment. Additionally, suggest common over-the-counter medications or home remedies that could help alleviate these symptoms. " +
         "DISCLAIMER: Always emphasize that this is an AI assessment, not medical advice, and they must consult a doctor or pharmacist before taking any medication. Format the output in clear Markdown.";
@@ -43,6 +55,10 @@ public class GeminiService {
                     Map.of("parts", List.of(
                         Map.of("text", prompt)
                     ))
+                ));
+                requestBody.put("generationConfig", Map.of(
+                    "temperature", 0.4,
+                    "maxOutputTokens", 1024
                 ));
                 
                 HttpHeaders headers = new HttpHeaders();
@@ -60,30 +76,41 @@ public class GeminiService {
                     }
                 }
             } catch (org.springframework.web.client.HttpStatusCodeException e) {
-                if (e.getStatusCode().value() == 503 && i < 2) {
-                    try { Thread.sleep(2000); } catch (InterruptedException ie) {}
+                int status = e.getStatusCode().value();
+                System.err.println("Gemini API Http Error (" + status + "): " + e.getResponseBodyAsString());
+                if (status == 503 && i < 2) {
+                    try { Thread.sleep(500); } catch (InterruptedException ie) {}
                     continue;
                 }
-                System.err.println("Gemini API Http Error: " + e.getMessage());
+                if (status == 400 || status == 403) {
+                    return "Invalid Gemini API key or request format (HTTP " + status + "). Please verify your GEMINI_API_KEY.";
+                }
+                if (status == 429) {
+                    return "Gemini API rate limit exceeded. Please wait a moment and try again.";
+                }
                 break;
             } catch (Exception e) {
                 System.err.println("Gemini API Error: " + e.getMessage());
                 break;
             }
         }
-        return "AI service is temporarily busy. Please try again in a few moments.";
+        return "AI service is temporarily unavailable. Please verify API key and network connection.";
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public String analyzePillBottle(MultipartFile image) {
+        if (isApiKeyMissing()) {
+            return "{\"medicineName\":\"API Key Not Configured\", \"dosage\":\"Set GEMINI_API_KEY\"}";
+        }
+
         try {
             String base64Image = Base64.getEncoder().encodeToString(image.getBytes());
             String mimeType = image.getContentType();
             if (mimeType == null || !mimeType.startsWith("image/")) {
-                mimeType = "image/jpeg"; // fallback
+                mimeType = "image/jpeg";
             }
 
-            String prompt = "You are a medical assistant reading a pill bottle. Please output ONLY a JSON object containing the keys 'medicineName' and 'dosage' extracted from the label. If you cannot find them, guess or return Unknown. Do not use markdown blocks, just raw JSON.";
+            String prompt = "You are a medical assistant reading a pill bottle. Output ONLY a JSON object with keys 'medicineName' and 'dosage'. If unreadable, return Unknown. No markdown, raw JSON only.";
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("contents", List.of(
@@ -92,11 +119,15 @@ public class GeminiService {
                     Map.of("inlineData", Map.of("mimeType", mimeType, "data", base64Image))
                 ))
             ));
+            requestBody.put("generationConfig", Map.of(
+                "temperature", 0.1,
+                "maxOutputTokens", 256
+            ));
 
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
             
-            org.springframework.http.HttpEntity<Map<String, Object>> entity = new org.springframework.http.HttpEntity<>(requestBody, headers);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             
             ResponseEntity<Map> responseEntity = restTemplate.postForEntity(apiUrl + "?key=" + apiKey, entity, Map.class);
             Map<String, Object> response = responseEntity.getBody();
@@ -111,13 +142,17 @@ public class GeminiService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "{\"medicineName\":\"Error\", \"dosage\":\"Error\"}";
+            return "{\"medicineName\":\"Error\", \"dosage\":\"" + e.getMessage() + "\"}";
         }
         return "{\"medicineName\":\"Unknown\", \"dosage\":\"Unknown\"}";
     }
 
     @SuppressWarnings("unchecked")
     public String generateConversationalResponse(List<ChatMessage> history, String newMessage) {
+        if (isApiKeyMissing()) {
+            return "Gemini API key is not configured. Please set the GEMINI_API_KEY environment variable (e.g., set in `.env` or run `.\\run.bat YOUR_API_KEY`) to enable AI features.";
+        }
+
         String systemPrompt = "You are CareSync AI, an intelligent and friendly healthcare assistant. " +
             "Your role: provide preliminary healthcare guidance, explain symptoms clearly, suggest general precautions, and recommend consulting doctors for serious symptoms. " +
             "Guidelines: answer conversationally and naturally, keep responses supportive and professional, avoid short robotic replies, explain possible causes simply, " +
@@ -127,14 +162,11 @@ public class GeminiService {
             try {
                 Map<String, Object> requestBody = new HashMap<>();
                 
-                // System Instruction
                 requestBody.put("system_instruction", Map.of(
                     "parts", List.of(Map.of("text", systemPrompt))
                 ));
                 
                 List<Map<String, Object>> contents = new ArrayList<>();
-                
-                // Add history
                 if (history != null) {
                     for (ChatMessage msg : history) {
                         contents.add(Map.of(
@@ -144,13 +176,16 @@ public class GeminiService {
                     }
                 }
                 
-                // Add new message
                 contents.add(Map.of(
                     "role", "user",
                     "parts", List.of(Map.of("text", newMessage))
                 ));
                 
                 requestBody.put("contents", contents);
+                requestBody.put("generationConfig", Map.of(
+                    "temperature", 0.5,
+                    "maxOutputTokens", 1024
+                ));
                 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -167,22 +202,33 @@ public class GeminiService {
                     }
                 }
             } catch (org.springframework.web.client.HttpStatusCodeException e) {
-                if (e.getStatusCode().value() == 503 && i < 2) {
-                    try { Thread.sleep(2000); } catch (InterruptedException ie) {}
+                int status = e.getStatusCode().value();
+                System.err.println("Gemini API Http Error (" + status + "): " + e.getResponseBodyAsString());
+                if (status == 503 && i < 2) {
+                    try { Thread.sleep(500); } catch (InterruptedException ie) {}
                     continue;
                 }
-                System.err.println("Gemini API Http Error: " + e.getMessage());
+                if (status == 400 || status == 403) {
+                    return "Invalid Gemini API key or request format (HTTP " + status + "). Please verify your GEMINI_API_KEY.";
+                }
+                if (status == 429) {
+                    return "Gemini API rate limit exceeded. Please wait a moment and try again.";
+                }
                 break;
             } catch (Exception e) {
                 System.err.println("Gemini API Error: " + e.getMessage());
                 break;
             }
         }
-        return "AI service is temporarily busy. Please try again in a few moments.";
+        return "AI service is temporarily unavailable. Please verify API key and network connection.";
     }
 
     @SuppressWarnings("unchecked")
     public String analyzeVisionImage(byte[] imageBytes, String mimeType) {
+        if (isApiKeyMissing()) {
+            return "Gemini API key is not configured. Please set the GEMINI_API_KEY environment variable (e.g., set in `.env` or run `.\\run.bat YOUR_API_KEY`) to enable AI features.";
+        }
+
         String systemPrompt = "You are an AI healthcare assistant providing preliminary healthcare guidance only.\n\n" +
                 "Analyze the uploaded healthcare-related image and provide:\n" +
                 "- general observation\n" +
@@ -199,7 +245,6 @@ public class GeminiService {
             try {
                 Map<String, Object> requestBody = new HashMap<>();
                 
-                // System Instruction
                 requestBody.put("system_instruction", Map.of(
                     "parts", List.of(Map.of("text", systemPrompt))
                 ));
@@ -212,6 +257,10 @@ public class GeminiService {
                             Map.of("inlineData", Map.of("mimeType", mimeType, "data", base64Image))
                         )
                     )
+                ));
+                requestBody.put("generationConfig", Map.of(
+                    "temperature", 0.3,
+                    "maxOutputTokens", 1024
                 ));
                 
                 HttpHeaders headers = new HttpHeaders();
@@ -229,18 +278,24 @@ public class GeminiService {
                     }
                 }
             } catch (org.springframework.web.client.HttpStatusCodeException e) {
-                if (e.getStatusCode().value() == 503 && i < 2) {
-                    try { Thread.sleep(2000); } catch (InterruptedException ie) {}
+                int status = e.getStatusCode().value();
+                System.err.println("Gemini Vision API Http Error (" + status + "): " + e.getResponseBodyAsString());
+                if (status == 503 && i < 2) {
+                    try { Thread.sleep(500); } catch (InterruptedException ie) {}
                     continue;
                 }
-                System.err.println("Gemini Vision API Http Error: " + e.getMessage());
+                if (status == 400 || status == 403) {
+                    return "Invalid Gemini API key or request format (HTTP " + status + "). Please verify your GEMINI_API_KEY.";
+                }
+                if (status == 429) {
+                    return "Gemini API rate limit exceeded. Please wait a moment and try again.";
+                }
                 break;
             } catch (Exception e) {
                 System.err.println("Gemini Vision API Error: " + e.getMessage());
                 break;
             }
         }
-        return "AI service is temporarily busy. Please try again in a few moments.";
+        return "AI service is temporarily unavailable. Please verify API key and network connection.";
     }
 }
- 

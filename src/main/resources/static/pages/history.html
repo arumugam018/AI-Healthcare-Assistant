@@ -9,39 +9,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <i class="fa-solid fa-bars fs-4"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-                <ul class="navbar-nav gap-3">
-                    <li class="nav-item"><a class="nav-link" href="/" data-i18n="navHome">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/history" data-i18n="navHistory">History</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-lock"></i> <span data-i18n="navReminder">Reminders</span></a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
+                <ul class="navbar-nav gap-2">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-house"></i> <span data-i18n="navHome">Home</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-info" href="/chat"><i class="fa-solid fa-robot"></i> <span data-i18n="navChat">AI Chatbot</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-success" href="/vision"><i class="fa-solid fa-camera"></i> <span data-i18n="navVision">AI Vision</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="/symptom-checker"><i class="fa-solid fa-stethoscope"></i> <span data-i18n="navSymptom">Symptom Checker</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-pills"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fa-solid fa-chart-line"></i> <span data-i18n="navDashboard">Dashboard</span></a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/history"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="navHistory">History</span></a></li>
+                    <li class="nav-item ms-lg-2"><a class="nav-link btn btn-outline-light-custom px-3 py-1 text-white" href="#" onclick="toggleLanguage(event)"><i class="fa-solid fa-globe"></i> <span data-i18n="langToggle">EN | TA</span></a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container container-main">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold text-primary"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="historyTitle">Your Medical History</span></h2>
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="card-feature-icon mb-0" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6; width: 54px; height: 54px; font-size: 1.4rem;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <h3 class="fw-bold mb-1" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" data-i18n="historyTitle">Medical History & Logs</h3>
+                <p class="text-secondary small mb-0" data-i18n="historySub">View past symptom checks and download PDF assessment reports.</p>
+            </div>
         </div>
 
-        <div class="row w-100 m-0 p-0">
-            <div class="col-12 p-0">
-                <div class="card p-4 shadow-sm border-0 bg-light">
-                    <div id="historyList" class="d-flex flex-column gap-3">
-                        <p class="text-center text-muted py-5"><i class="fa-solid fa-spinner fa-spin"></i> Loading previous assessments...</p>
-                    </div>
-                </div>
+        <div class="card p-4">
+            <div id="historyList" class="d-flex flex-column gap-3">
+                <p class="text-center text-secondary py-5 mb-0"><i class="fa-solid fa-spinner fa-spin me-2"></i> Fetching medical history...</p>
             </div>
         </div>
     </div>
@@ -72,8 +76,8 @@
                 list.innerHTML = `
                     <div class="text-center py-5">
                        <i class="fa-regular fa-folder-open fa-3x text-secondary mb-3"></i>
-                       <p class="text-muted fw-bold">No history available.</p>
-                       <a href="/symptom-checker" class="btn btn-outline-primary btn-sm mt-3">Try the AI Now</a>
+                       <p class="text-secondary fw-semibold">No medical history logged yet.</p>
+                       <a href="/symptom-checker" class="btn btn-primary btn-sm px-4">Start Symptom Check</a>
                     </div>
                 `;
                 return;
@@ -83,25 +87,26 @@
 
             globalHistories.forEach((item, index) => {
                 const div = document.createElement('div');
-                div.className = 'card border p-4 shadow-sm h-100 accordion-item';
+                div.className = 'card p-3 border-0 rounded-3';
+                div.style.background = 'rgba(15, 23, 42, 0.9)';
+                div.style.border = '1px solid rgba(255,255,255,0.08)';
                 
-                // create a short snippet
-                const shortDesc = item.symptoms.length > 60 ? item.symptoms.substring(0,60) + '...' : item.symptoms;
+                const shortDesc = item.symptoms.length > 70 ? item.symptoms.substring(0,70) + '...' : item.symptoms;
 
                 div.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                    <div class="d-flex justify-content-between align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapse${index}" style="cursor: pointer;">
                         <div>
-                            <h6 class="fw-bold mb-1 text-primary"><i class="fa-solid fa-clipboard-user"></i> Log #${globalHistories.length - index}</h6>
-                            <p class="mb-0 text-muted fst-italic">"${shortDesc}"</p>
+                            <h6 class="fw-bold mb-1 text-info"><i class="fa-solid fa-clipboard-user me-2"></i> Assessment Log #${globalHistories.length - index}</h6>
+                            <p class="mb-0 text-secondary small fst-italic">"${shortDesc}"</p>
                         </div>
                         <i class="fa-solid fa-chevron-down text-secondary"></i>
                     </div>
-                    <div id="collapse${index}" class="collapse mt-3 border-top pt-3">
-                        <p class="fw-bold mb-1">Full Query Input:</p>
-                        <p class="text-dark bg-white p-2 rounded border">${item.symptoms}</p>
-                        <p class="fw-bold mb-1 mt-3 text-primary">AI Assessment:</p>
-                        <div class="text-dark bg-white p-3 rounded border" style="font-size: 0.9em; white-space: pre-wrap;">${item.aiResponse}</div>
-                        <button class="btn btn-sm btn-outline-danger mt-3" onclick="downloadHistoryPdf(${index})"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                    <div id="collapse${index}" class="collapse mt-3 border-top border-secondary border-opacity-25 pt-3">
+                        <p class="fw-bold mb-1 text-secondary small">Submitted Symptoms:</p>
+                        <div class="p-3 rounded-3 mb-3" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1;">${item.symptoms}</div>
+                        <p class="fw-bold mb-1 text-info small">AI Guidance:</p>
+                        <div class="p-3 rounded-3 text-light" style="background: rgba(30, 41, 59, 0.9); font-size: 0.92rem; white-space: pre-wrap; line-height: 1.6;">${item.aiResponse}</div>
+                        <button class="btn btn-outline-light-custom btn-sm mt-3" onclick="downloadHistoryPdf(${index})"><i class="fa-solid fa-file-pdf text-danger me-1"></i> Download PDF Report</button>
                     </div>
                 `;
                 list.appendChild(div);

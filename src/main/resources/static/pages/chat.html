@@ -7,164 +7,182 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Marked.js for markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         .chat-container {
-            height: calc(100vh - 180px);
+            height: calc(100vh - 170px);
+            min-height: 520px;
             display: flex;
             flex-direction: column;
-            background: #f8f9fa;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
             overflow: hidden;
         }
         .chat-messages {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 1rem;
         }
         .chat-bubble {
             max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 16px;
-            line-height: 1.5;
-            position: relative;
+            padding: 1rem 1.25rem;
+            border-radius: 1.2rem;
+            line-height: 1.6;
+            animation: messageIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .chat-bubble p {
+            margin-bottom: 0.5rem;
+        }
+        .chat-bubble p:last-child {
             margin-bottom: 0;
         }
         .chat-bubble.user {
-            background-color: #0ea5e9;
-            color: white;
+            background: var(--primary-gradient);
+            color: #ffffff;
             align-self: flex-end;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 0.25rem;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.25);
         }
         .chat-bubble.model {
-            background-color: #ffffff;
-            color: #333;
+            background: rgba(30, 41, 59, 0.85);
+            color: #f1f5f9;
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 0.25rem;
+            border: 1px solid var(--border-color);
         }
         .chat-input-area {
-            padding: 15px 20px;
-            background: #ffffff;
-            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.25rem;
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid var(--border-color);
             display: flex;
-            gap: 10px;
+            gap: 0.75rem;
             align-items: center;
         }
         .chat-input {
             flex-grow: 1;
-            border-radius: 24px;
-            padding: 12px 20px;
-            border: 1px solid #dee2e6;
+            border-radius: 2rem;
+            padding: 0.85rem 1.25rem;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border-color);
+            color: #ffffff;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.25s ease;
         }
         .chat-input:focus {
             border-color: #0ea5e9;
-            box-shadow: 0 0 0 0.2rem rgba(14, 165, 233, 0.25);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25);
+            background: rgba(30, 41, 59, 1);
         }
         .btn-circle {
-            width: 45px;
-            height: 45px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             border: none;
             cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        .btn-circle:hover {
-            transform: scale(1.05);
+            transition: all 0.25s ease;
         }
         .btn-send {
-            background-color: #0ea5e9;
+            background: var(--primary-gradient);
             color: white;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+        .btn-send:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
         }
         .btn-mic {
-            background-color: #f1f5f9;
-            color: #64748b;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-mic:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
         }
         .btn-mic.active {
-            background-color: #ef4444;
+            background: #ef4444;
             color: white;
-            animation: pulse 1.5s infinite;
+            animation: micPulse 1.5s infinite;
         }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        @keyframes micPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
         .typing-indicator {
             display: inline-flex;
-            gap: 4px;
-            padding: 12px 16px;
-            background: #ffffff;
-            border-radius: 16px;
+            gap: 6px;
+            padding: 1rem 1.25rem;
+            background: rgba(30, 41, 59, 0.85);
+            border-radius: 1.2rem;
             align-self: flex-start;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-color);
         }
         .typing-dot {
             width: 8px;
             height: 8px;
-            background: #cbd5e1;
+            background: #0ea5e9;
             border-radius: 50%;
-            animation: typing 1.4s infinite;
+            animation: typing 1.4s infinite ease-in-out;
         }
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes typing {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            0%, 100% { transform: translateY(0); opacity: 0.4; }
+            50% { transform: translateY(-6px); opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
-                <i class="fa-solid fa-staff-snake"></i> CareSync AI
+                <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <i class="fa-solid fa-bars fs-4"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-                <ul class="navbar-nav gap-3">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/chat">AI Chatbot</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/symptom-checker">Symptom Checker</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
+                <ul class="navbar-nav gap-2">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-house"></i> <span data-i18n="navHome">Home</span></a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/chat"><i class="fa-solid fa-robot"></i> <span data-i18n="navChat">AI Chatbot</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-success" href="/vision"><i class="fa-solid fa-camera"></i> <span data-i18n="navVision">AI Vision</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="/symptom-checker"><i class="fa-solid fa-stethoscope"></i> <span data-i18n="navSymptom">Symptom Checker</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/medicine-reminder"><i class="fa-solid fa-pills"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fa-solid fa-chart-line"></i> <span data-i18n="navDashboard">Dashboard</span></a></li>
+                    <li class="nav-item ms-lg-2"><a class="nav-link btn btn-outline-light-custom px-3 py-1 text-white" href="#" onclick="toggleLanguage(event)"><i class="fa-solid fa-globe"></i> <span data-i18n="langToggle">EN | TA</span></a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container container-main">
-        <div class="row w-100 justify-content-center">
+        <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="chat-container">
                     <div class="chat-messages" id="chatMessages">
                         <div class="chat-bubble model">
-                            <p>Hello! I am CareSync AI, your healthcare assistant. How can I help you today?</p>
+                            <p class="fw-bold mb-1 text-info"><i class="fa-solid fa-robot me-1"></i> <span data-i18n="chatTitle">CareSync Assistant</span></p>
+                            <p data-i18n="chatGreeting">Hello! I am your CareSync AI Healthcare Assistant. How can I assist you with your health or symptoms today?</p>
                         </div>
                     </div>
                     <div class="chat-input-area">
-                        <button class="btn-circle btn-mic" id="ttsBtn" onclick="toggleTts()" title="Toggle Text-to-Speech">
+                        <button class="btn-circle btn-mic" id="ttsBtn" onclick="toggleTts()" title="Toggle Voice Output">
                             <i class="fa-solid fa-volume-high"></i>
                         </button>
                         <button class="btn-circle btn-mic" id="micBtn" onclick="toggleVoice()" title="Speech to Text">
                             <i class="fa-solid fa-microphone"></i>
                         </button>
-                        <input type="text" class="chat-input" id="messageInput" placeholder="Type your symptoms or health query here..." onkeypress="handleKeyPress(event)">
+                        <input type="text" class="chat-input" id="messageInput" placeholder="Describe symptoms or ask health questions..." data-i18n="chatPlaceholder" onkeypress="handleKeyPress(event)">
                         <button class="btn-circle btn-send" onclick="sendMessage()">
                             <i class="fa-solid fa-paper-plane"></i>
                         </button>
@@ -175,8 +193,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/i18n.js"></script>
     <script>
-        // Generate or retrieve session ID
         let sessionId = localStorage.getItem('chatSessionId');
         if (!sessionId) {
             sessionId = crypto.randomUUID ? crypto.randomUUID() : 'sess-' + Date.now();
@@ -186,14 +204,12 @@
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
 
-        // Load history on start
         async function loadHistory() {
             try {
                 const res = await fetch(`/api/chat/history/${sessionId}`);
                 if (res.ok) {
                     const session = await res.json();
                     if (session.messages && session.messages.length > 0) {
-                        // Clear welcome message if there's history
                         chatMessages.innerHTML = '';
                         session.messages.forEach(msg => {
                             appendMessage(msg.content, msg.role);
@@ -245,10 +261,15 @@
         }
 
         async function sendMessage() {
-            const text = messageInput.value.trim();
+            let text = messageInput.value.trim();
             if (!text) return;
 
-            // Clear input and show user message
+            // If language is Tamil, instruct AI to respond in Tamil!
+            let promptToSend = text;
+            if (localStorage.getItem('lang') === 'ta') {
+                promptToSend = `[Please respond in Tamil] ${text}`;
+            }
+
             messageInput.value = '';
             appendMessage(text, 'user');
             showTypingIndicator();
@@ -259,8 +280,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         sessionId: sessionId,
-                        userId: "anonymous", // Can be replaced with actual user ID later
-                        message: text
+                        userId: "anonymous",
+                        message: promptToSend
                     })
                 });
 
@@ -269,24 +290,19 @@
                 if (response.ok) {
                     const data = await response.json();
                     appendMessage(data.message.content, 'model');
-                    if (ttsEnabled) {
-                        speakText(data.message.content);
-                    }
+                    if (ttsEnabled) speakText(data.message.content);
                 } else {
-                    const errorMsg = "Sorry, I encountered an error. Please try again.";
+                    const errorMsg = localStorage.getItem('lang') === 'ta' ? "மன்னிக்கவும், பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்." : "Unable to process request right now. Please try again.";
                     appendMessage(errorMsg, 'model');
                     if (ttsEnabled) speakText(errorMsg);
                 }
             } catch (error) {
                 console.error(error);
                 removeTypingIndicator();
-                const errorMsg = "Failed to connect to the server.";
-                appendMessage(errorMsg, 'model');
-                if (ttsEnabled) speakText(errorMsg);
+                appendMessage("Failed to connect to backend server.", 'model');
             }
         }
 
-        // Text-to-Speech Placeholder
         let ttsEnabled = false;
         function toggleTts() {
             ttsEnabled = !ttsEnabled;
@@ -297,55 +313,40 @@
             } else {
                 ttsBtn.classList.remove('active');
                 ttsBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-                window.speechSynthesis.cancel(); // Stop speaking if turned off
+                window.speechSynthesis.cancel();
             }
         }
 
         function speakText(text) {
             if ('speechSynthesis' in window) {
-                // Strip markdown for speaking
                 const plainText = text.replace(/[#*_~`>]/g, '').trim();
                 const utterance = new SpeechSynthesisUtterance(plainText);
-                utterance.lang = 'en-US';
-                // Optional: choose a female/medical sounding voice if available
+                utterance.lang = localStorage.getItem('lang') === 'ta' ? 'ta-IN' : 'en-US';
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        // Web Speech API Placeholder
         let recognition;
         let isListening = false;
-        
         if ('webkitSpeechRecognition' in window) {
             recognition = new webkitSpeechRecognition();
             recognition.continuous = false;
             recognition.interimResults = true;
             
             recognition.onresult = function(event) {
-                let interimTranscript = '';
                 let finalTranscript = '';
-                
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
                         finalTranscript += event.results[i][0].transcript;
-                    } else {
-                        interimTranscript += event.results[i][0].transcript;
                     }
                 }
-                
                 if (finalTranscript) {
                     messageInput.value = (messageInput.value + ' ' + finalTranscript).trim();
                 }
             };
             
-            recognition.onerror = function(event) {
-                console.error("Speech error:", event.error);
-                stopVoice();
-            };
-            
-            recognition.onend = function() {
-                stopVoice();
-            };
+            recognition.onerror = function() { stopVoice(); };
+            recognition.onend = function() { stopVoice(); };
         }
 
         function toggleVoice() {
@@ -353,11 +354,11 @@
                 alert("Speech recognition is not supported in this browser.");
                 return;
             }
-            
             if (isListening) {
                 recognition.stop();
             } else {
-                messageInput.placeholder = "Listening...";
+                recognition.lang = localStorage.getItem('lang') === 'ta' ? 'ta-IN' : 'en-US';
+                messageInput.placeholder = localStorage.getItem('lang') === 'ta' ? "கேட்கிறது..." : "Listening...";
                 recognition.start();
                 isListening = true;
                 document.getElementById('micBtn').classList.add('active');
@@ -367,7 +368,7 @@
         function stopVoice() {
             isListening = false;
             document.getElementById('micBtn').classList.remove('active');
-            messageInput.placeholder = "Type your symptoms or health query here...";
+            messageInput.placeholder = translations[localStorage.getItem('lang') || 'en']['chatPlaceholder'];
         }
     </script>
 </body>

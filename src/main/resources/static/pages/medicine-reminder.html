@@ -9,75 +9,78 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <i class="fa-solid fa-staff-snake"></i> <span data-i18n="brandName">CareSync AI</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <i class="fa-solid fa-bars fs-4"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-                <ul class="navbar-nav gap-3">
-                    <li class="nav-item"><a class="nav-link" href="/" data-i18n="navHome">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/dashboard" data-i18n="navDashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/history" data-i18n="navHistory">History</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/symptom-checker" data-i18n="navSymptom">Symptom Checker</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/medicine-reminder"><i class="fa-solid fa-lock text-success"></i> <span data-i18n="navReminder">Reminders</span></a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold text-primary" href="#" onclick="toggleLanguage(event)" data-i18n="langToggle">EN | TA</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold text-danger" href="/logout"><i class="fa-solid fa-right-from-bracket"></i></a></li>
+                <ul class="navbar-nav gap-2">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-house"></i> <span data-i18n="navHome">Home</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-info" href="/chat"><i class="fa-solid fa-robot"></i> <span data-i18n="navChat">AI Chatbot</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-success" href="/vision"><i class="fa-solid fa-camera"></i> <span data-i18n="navVision">AI Vision</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="/symptom-checker"><i class="fa-solid fa-stethoscope"></i> <span data-i18n="navSymptom">Symptom Checker</span></a></li>
+                    <li class="nav-item"><a class="nav-link active text-danger" href="/medicine-reminder"><i class="fa-solid fa-pills"></i> <span data-i18n="navReminder">Reminders</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fa-solid fa-chart-line"></i> <span data-i18n="navDashboard">Dashboard</span></a></li>
+                    <li class="nav-item ms-lg-2"><a class="nav-link btn btn-outline-light-custom px-3 py-1 text-white" href="#" onclick="toggleLanguage(event)"><i class="fa-solid fa-globe"></i> <span data-i18n="langToggle">EN | TA</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="/logout" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container container-main row m-0 p-0 mx-auto w-100">
-        <div class="col-md-5 mb-4 p-3">
-            <div class="card p-4 h-100 shadow-sm border-0">
-                <h4 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-plus-circle"></i> <span data-i18n="rmTitle">Add Medication Reminder</span></h4>
-                
-                <form id="reminderForm" onsubmit="addReminder(event)">
-                    <div class="mb-3 border p-3 rounded bg-light border-primary border-opacity-25">
-                        <label class="form-label text-primary fw-bold"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Auto-Fill (Scan Pill Label)</label>
-                        <div class="d-flex gap-2">
-                            <input class="form-control" type="file" id="pillImage" accept="image/*">
-                            <button type="button" class="btn btn-primary" onclick="scanPillBottle()" id="scanBtn">
-                                <i class="fa-solid fa-camera"></i>
-                            </button>
+    <div class="container container-main">
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card p-4 h-100">
+                    <h4 class="fw-bold mb-4 text-info"><i class="fa-solid fa-plus-circle me-2"></i><span data-i18n="rmTitle">Add Medication</span></h4>
+                    
+                    <form id="reminderForm" onsubmit="addReminder(event)">
+                        <div class="mb-4 p-3 rounded-3" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.2);">
+                            <label class="form-label text-info fw-bold small"><i class="fa-solid fa-wand-magic-sparkles me-1"></i> AI Pill Label OCR Scan</label>
+                            <div class="d-flex gap-2">
+                                <input class="form-control form-control-custom" type="file" id="pillImage" accept="image/*">
+                                <button type="button" class="btn btn-primary px-3" onclick="scanPillBottle()" id="scanBtn">
+                                    <i class="fa-solid fa-camera"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-muted fw-bold" data-i18n="rmMedName">Medicine Name</label>
-                        <input type="text" class="form-control" id="medName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-muted fw-bold" data-i18n="rmDosage">Dosage</label>
-                        <input type="text" class="form-control" id="dosage" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="form-label text-muted fw-bold" data-i18n="rmTime">Time</label>
-                            <input type="time" class="form-control" id="time" required>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-semibold" data-i18n="rmMedName">Medicine Name</label>
+                            <input type="text" class="form-control form-control-custom" id="medName" placeholder="e.g. Paracetamol" required>
                         </div>
-                        <div class="col-6 mb-3">
-                            <label class="form-label text-muted fw-bold" data-i18n="rmFreq">Frequency</label>
-                            <select class="form-select" id="frequency">
-                                <option value="Daily">Daily</option>
-                                <option value="Weekly">Weekly</option>
-                                <option value="As Needed">As Needed</option>
-                            </select>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-semibold" data-i18n="rmDosage">Dosage</label>
+                            <input type="text" class="form-control form-control-custom" id="dosage" placeholder="e.g. 500mg" required>
                         </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 mt-3 py-2 fw-bold"><i class="fa-solid fa-check"></i> <span data-i18n="btnAddRm">Add Reminder</span></button>
-                </form>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-secondary small fw-semibold" data-i18n="rmTime">Time</label>
+                                <input type="time" class="form-control form-control-custom" id="time" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-secondary small fw-semibold" data-i18n="rmFreq">Frequency</label>
+                                <select class="form-select form-control-custom" id="frequency">
+                                    <option value="Daily">Daily</option>
+                                    <option value="Weekly">Weekly</option>
+                                    <option value="As Needed">As Needed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2 py-3 fw-bold"><i class="fa-solid fa-check me-1"></i> <span data-i18n="btnAddRm">Save Reminder</span></button>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <div class="col-md-7 mb-4 p-3">
-            <div class="card p-4 h-100 shadow-sm border-0 bg-light">
-                <h4 class="fw-bold text-secondary mb-4 border-bottom pb-2"><i class="fa-solid fa-list-check"></i> <span data-i18n="rmSchedule">Your Medical Schedule</span></h4>
-                <div id="remindersList" class="d-flex flex-column gap-3">
-                    <p class="text-center text-muted mt-5">Loading...</p>
+            <div class="col-lg-7">
+                <div class="card p-4 h-100">
+                    <h4 class="fw-bold mb-4 text-light"><i class="fa-solid fa-list-check text-success me-2"></i><span data-i18n="rmSchedule">Medical Schedule</span></h4>
+                    <div id="remindersList" class="d-flex flex-column gap-3">
+                        <p class="text-center text-secondary py-5 mb-0"><i class="fa-solid fa-spinner fa-spin me-2"></i> Loading schedule...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -105,21 +108,23 @@
             list.innerHTML = '';
             
             if (reminders.length === 0) {
-                list.innerHTML = `<p class="text-center text-muted font-italic mt-5">No active reminders.</p>`;
+                list.innerHTML = `<p class="text-center text-secondary py-5 mb-0">No active medication reminders.</p>`;
                 return;
             }
 
             reminders.forEach(reminder => {
                 const div = document.createElement('div');
-                div.className = 'card border p-3 border-start border-primary border-4 shadow-sm';
+                div.className = 'card p-3 border-0 rounded-3';
+                div.style.background = 'rgba(15, 23, 42, 0.9)';
+                div.style.borderLeft = '4px solid #10b981';
                 div.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="fw-bold mb-1">${reminder.medicineName}</h5>
-                            <span class="badge bg-secondary mb-2">${reminder.dosage}</span>
-                            <div class="text-muted small"><i class="fa-regular fa-clock"></i> ${reminder.time} &bull; <i class="fa-solid fa-rotate-right"></i> ${reminder.frequency}</div>
+                            <h5 class="fw-bold mb-1 text-light">${reminder.medicineName}</h5>
+                            <span class="badge badge-glass mb-2">${reminder.dosage}</span>
+                            <div class="text-secondary small"><i class="fa-regular fa-clock me-1 text-info"></i> ${reminder.time} &bull; <i class="fa-solid fa-rotate-right ms-2 me-1 text-warning"></i> ${reminder.frequency}</div>
                         </div>
-                        <button class="btn btn-danger btn-sm rounded-circle px-2 disabled"><i class="fa-solid fa-trash"></i></button>
+                        <i class="fa-solid fa-capsules text-success fs-3 opacity-50 me-2"></i>
                     </div>
                 `;
                 list.appendChild(div);
@@ -154,7 +159,7 @@
         async function scanPillBottle() {
             const fileInput = document.getElementById('pillImage');
             if (!fileInput.files || fileInput.files.length === 0) {
-                alert("Please select an image first.");
+                alert("Please select an image file first.");
                 return;
             }
 
@@ -174,20 +179,18 @@
                 if (response.ok) {
                     let data = await response.text();
                     try {
-                        // AI sometimes returns markdown blocks
                         data = data.replace(/```json/g, '').replace(/```/g, '').trim();
                         const extracted = JSON.parse(data);
                         if(extracted.medicineName && extracted.medicineName !== 'Unknown') document.getElementById('medName').value = extracted.medicineName;
                         if(extracted.dosage && extracted.dosage !== 'Unknown') document.getElementById('dosage').value = extracted.dosage;
                     } catch (err) {
-                        console.error("Failed to parse AI response: ", data);
-                        alert("AI could not read the label clearly.");
+                        alert("AI could not extract label parameters clearly.");
                     }
                 } else {
-                    alert("Failed to scan image.");
+                    alert("Failed to scan label image.");
                 }
             } catch (e) {
-                alert("Error connecting to AI Vision API.");
+                alert("Error connecting to Vision OCR API.");
             } finally {
                 scanBtn.innerHTML = '<i class="fa-solid fa-camera"></i>';
                 scanBtn.disabled = false;

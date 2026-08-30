@@ -40,10 +40,8 @@ public class VisionController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             String msg = e.getMessage();
-            if (msg == null || (!msg.equals("Image upload failed.") 
-                    && !msg.equals("AI service temporarily unavailable.") 
-                    && !msg.equals("Please try again."))) {
-                msg = "Please try again.";
+            if (msg == null || msg.trim().isEmpty()) {
+                msg = "An unexpected error occurred. Please try again.";
             }
             return ResponseEntity.status(500).body(Map.of(
                 "error", msg,

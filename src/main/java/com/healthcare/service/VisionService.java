@@ -26,10 +26,6 @@ public class VisionService {
 
     @SuppressWarnings("null")
     public VisionRecord processVisionRequest(MultipartFile image, String userId) throws Exception {
-        if (storage == null || firestore == null) {
-            throw new RuntimeException("AI service temporarily unavailable.");
-        }
-
         byte[] imageBytes;
         try {
             imageBytes = image.getBytes();
@@ -46,7 +42,7 @@ public class VisionService {
             originalFileName = "captured_image.jpg";
         }
 
-        // 1. Upload image to Firebase Storage
+        // 1. Storage Upload / Base64 fallback
         String recordId = UUID.randomUUID().toString();
         String extension = "jpg";
         if (originalFileName.contains(".")) {
@@ -55,59 +51,54 @@ public class VisionService {
         String storagePath = "vision/" + recordId + "." + extension;
 
         String imageUrl = null;
-        Blob blob = null;
-
-        // Try primary bucket
-        String primaryBucket = "ai-healthcare-assistant-98292.appspot.com";
-        try {
-            BlobInfo blobInfo = BlobInfo.newBuilder(primaryBucket, storagePath)
-                    .setContentType(contentType)
-                    .build();
-            blob = storage.create(blobInfo, imageBytes);
-            imageUrl = blob.signUrl(365, TimeUnit.DAYS).toString();
-        } catch (Exception e) {
-            System.err.println("Upload to primary bucket " + primaryBucket + " failed: " + e.getMessage());
-            
-            // Try fallback bucket
-            String fallbackBucket = "ai-healthcare-assistant-98292.firebasestorage.app";
+        if (storage != null) {
+            String primaryBucket = "ai-healthcare-assistant-98292.appspot.com";
             try {
-                BlobInfo blobInfo = BlobInfo.newBuilder(fallbackBucket, storagePath)
+                BlobInfo blobInfo = BlobInfo.newBuilder(primaryBucket, storagePath)
                         .setContentType(contentType)
                         .build();
-                blob = storage.create(blobInfo, imageBytes);
+                Blob blob = storage.create(blobInfo, imageBytes);
                 imageUrl = blob.signUrl(365, TimeUnit.DAYS).toString();
-            } catch (Exception ex) {
-                System.err.println("Upload to fallback bucket " + fallbackBucket + " failed: " + ex.getMessage());
-                System.out.println("Using base64 Data URL fallback for image storage.");
-                
-                // Fallback to base64 Data URL so the application remains fully functional
-                String base64Image = java.util.Base64.getEncoder().encodeToString(imageBytes);
-                imageUrl = "data:" + contentType + ";base64," + base64Image;
+            } catch (Exception e) {
+                String fallbackBucket = "ai-healthcare-assistant-98292.firebasestorage.app";
+                try {
+                    BlobInfo blobInfo = BlobInfo.newBuilder(fallbackBucket, storagePath)
+                            .setContentType(contentType)
+                            .build();
+                    Blob blob = storage.create(blobInfo, imageBytes);
+                    imageUrl = blob.signUrl(365, TimeUnit.DAYS).toString();
+                } catch (Exception ex) {
+                    String base64Image = java.util.Base64.getEncoder().encodeToString(imageBytes);
+                    imageUrl = "data:" + contentType + ";base64," + base64Image;
+                }
             }
+        } else {
+            String base64Image = java.util.Base64.getEncoder().encodeToString(imageBytes);
+            imageUrl = "data:" + contentType + ";base64," + base64Image;
         }
 
         // 2. Send image to Gemini Vision AI
         String aiResponse;
         try {
             aiResponse = geminiService.analyzeVisionImage(imageBytes, contentType);
-            if (aiResponse == null || aiResponse.contains("temporarily busy")) {
+            if (aiResponse == null || aiResponse.isEmpty()) {
                 throw new RuntimeException("AI service temporarily unavailable.");
             }
         } catch (Exception e) {
             System.err.println("Gemini Vision Error: " + e.getMessage());
-            throw new RuntimeException("AI service temporarily unavailable.");
+            throw new RuntimeException(e.getMessage() != null ? e.getMessage() : "AI service temporarily unavailable.");
         }
 
-        // 3. Store metadata in Firestore
+        // 3. Store metadata in Firestore asynchronously
         VisionRecord record = new VisionRecord(recordId, userId, imageUrl, aiResponse, originalFileName, contentType);
-        try {
-            firestore.collection("vision_records").document(recordId).set(record).get();
-        } catch (Exception e) {
-            System.err.println("Firestore Error: " + e.getMessage());
-            throw new RuntimeException("Please try again.");
+        if (firestore != null) {
+            try {
+                firestore.collection("vision_records").document(recordId).set(record);
+            } catch (Exception e) {
+                System.err.println("Async Firestore log warning: " + e.getMessage());
+            }
         }
 
         return record;
     }
 }
- 

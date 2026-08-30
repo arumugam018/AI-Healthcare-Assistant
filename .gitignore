@@ -17,6 +17,7 @@ Thumbs.db
 
 # Sensitive credentials and secrets
 firebase-service-account.json
+.env
 
 # Local Apache Maven installation directory
 apache-maven-3.9.6/
