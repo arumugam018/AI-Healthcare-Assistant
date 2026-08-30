@@ -5,6 +5,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.healthcare.model.VisionRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,9 @@ public class VisionService {
     private final GeminiService geminiService;
     private final Storage storage;
 
-    public VisionService(Firestore firestore, GeminiService geminiService, Storage storage) {
+    public VisionService(@Autowired(required = false) Firestore firestore, 
+                         GeminiService geminiService, 
+                         @Autowired(required = false) Storage storage) {
         this.firestore = firestore;
         this.geminiService = geminiService;
         this.storage = storage;
