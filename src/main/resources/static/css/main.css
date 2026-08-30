@@ -52,6 +52,31 @@ body {
     background: #0ea5e9;
 }
 
+/* Logo Image Animations */
+.navbar-logo-img {
+    height: 38px;
+    width: auto;
+    filter: drop-shadow(0 0 12px rgba(14, 165, 233, 0.7));
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.navbar-logo-img:hover {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 22px rgba(14, 165, 233, 1));
+}
+
+.hero-logo-img {
+    height: 84px;
+    width: auto;
+    animation: heroLogoGlow 3s infinite ease-in-out;
+    margin-bottom: 1.25rem;
+}
+
+@keyframes heroLogoGlow {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.6)); }
+    50% { transform: scale(1.06); filter: drop-shadow(0 0 45px rgba(14, 165, 233, 1)); }
+}
+
 /* Animated Full-Screen CareSync AI Page Loader */
 .page-loader {
     position: fixed;
@@ -84,16 +109,16 @@ body {
 }
 
 .loader-logo-wrap img {
-    height: 54px;
+    height: 60px;
     width: auto;
     animation: loaderLogoPulse 1.8s infinite ease-in-out;
-    filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.7));
+    filter: drop-shadow(0 0 25px rgba(14, 165, 233, 0.8));
 }
 
 .loader-ring {
     position: absolute;
-    width: 120px;
-    height: 120px;
+    width: 130px;
+    height: 130px;
     border: 2px solid rgba(14, 165, 233, 0.12);
     border-top-color: #0ea5e9;
     border-bottom-color: #38bdf8;
@@ -102,8 +127,8 @@ body {
 }
 
 @keyframes loaderLogoPulse {
-    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.5)); }
-    50% { transform: scale(1.06); filter: drop-shadow(0 0 28px rgba(14, 165, 233, 0.95)); }
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 18px rgba(14, 165, 233, 0.5)); }
+    50% { transform: scale(1.08); filter: drop-shadow(0 0 35px rgba(14, 165, 233, 1)); }
 }
 
 @keyframes loaderSpin {
@@ -132,12 +157,6 @@ body {
     align-items: center;
     gap: 0.6rem;
     letter-spacing: -0.02em;
-}
-
-.navbar-brand i {
-    color: #0ea5e9;
-    -webkit-text-fill-color: initial;
-    animation: iconPulse 3s infinite ease-in-out;
 }
 
 .nav-link {
@@ -399,11 +418,6 @@ body {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
-}
-
-@keyframes iconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15); filter: drop-shadow(0 0 8px #0ea5e9); }
 }
 
 @keyframes rotateBg {
